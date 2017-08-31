@@ -26,7 +26,7 @@ var roleFighter = {
         
         targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return (!structure.my && structure.owner != undefined && structure.structureType != STRUCTURE_ROAD && structure.structureType != STRUCTURE_WALL && structure.structureType != STRUCTURE_CONTROLLER);
+                return (!structure.my && structure.owner != undefined && structure.structureType != STRUCTURE_ROAD && structure.structureType != STRUCTURE_WALL && structure.structureType != STRUCTURE_RAMPART && structure.structureType != STRUCTURE_CONTROLLER);
             }
         });
         //console.log(targets.length);
@@ -34,9 +34,14 @@ var roleFighter = {
             //console.log("I'm in.");
             var mini = methods.closest(creep,targets);
             var res = creep.attack(targets[mini]);
-            if(res == OK)
+            if(res == OK){
                 return;
-            res = creep.moveTo(targets[mini], {visualizePathStyle: {stroke: '#ffffff'}});
+            }else if(res = ERR_NOT_IN_RANGE){
+                creep.moveTo(targets[mini], {visualizePathStyle: {stroke: '#ffffff'}});
+                return;
+            }
+            //console.log("But cannot attack anyone");
+            
             //console.log("res : "+res);
             //console.log("ERR_NO_PATH : "+ERR_NO_PATH);
             //console.log(targets[mini]);
@@ -45,11 +50,25 @@ var roleFighter = {
                     return (!structure.my && (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART) && structure.hits);
                 }
             });
+            //console.log(targets.length);
             var mini = methods.closest(creep,targets);
             creep.attack(targets[mini]);
             creep.moveTo(targets[mini], {visualizePathStyle: {stroke: '#ffffff'}})
             
         }else{
+            if(creep.room.controller && creep.room.controller.owner && !creep.room.controller.my){
+                targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (!structure.my && (structure.structureType == STRUCTURE_WALL || structure.structureType == STRUCTURE_RAMPART) && structure.hits);
+                    }
+                });
+                if(targets.length){
+                    var mini = methods.closest(creep,targets);
+                    creep.moveTo(targets[mini], {visualizePathStyle: {stroke: '#ffffff'}})
+                    creep.attack(targets[mini]);
+                    return;
+                }
+            }
             creep.moveTo(Game.flags["FlagAttack"],{visualizePathStyle: {stroke: '#ffffff'}});
         }
     }

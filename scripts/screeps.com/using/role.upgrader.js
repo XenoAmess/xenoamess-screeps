@@ -16,6 +16,7 @@ var roleUpgrader = {
         
         
         if(cnt["harvester"] < MIN_HARVESTER){
+            creep.memory = {};
             creep.memory.role = "harvester";
             cnt["harvester"]++;
             return;

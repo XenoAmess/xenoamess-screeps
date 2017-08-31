@@ -1,6 +1,10 @@
 var methods = require("methods");
 var moveHarvest = {
     run : function(creep) {
+        if(Memory.CLEAR_TIME == MEMORY_CLEAR_TIME){
+            Memory.lastHarvestTarget = null;
+        }
+        
         //console.log(creep.memory.lastRepairTarget);
         //console.log(nowTarget);
         var nowTarget = Game.getObjectById(creep.memory.lastHarvestTarget);
@@ -21,10 +25,12 @@ var moveHarvest = {
         });
         if(targets.length){
             var mini = methods.closest(creep,targets);
+            
             creep.memory.lastHarvestTarget = targets[mini].id;
             if(creep.harvest(targets[mini]) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(targets[mini], {visualizePathStyle: {stroke: '#ffaa00'}});
             }
+            
         }
     }
 }

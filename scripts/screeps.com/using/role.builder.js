@@ -17,6 +17,7 @@ var roleBuilder = {
         
         
         if(cnt["harvester"] < MIN_HARVESTER){
+            creep.memory = {};
             creep.memory.role = "harvester";
             cnt["harvester"]++;
             return;
@@ -39,7 +40,8 @@ var roleBuilder = {
             moveRepairAndBuild.run(creep);
 	    } else {
 	        var builderCnt = roomNeedingEnergyCreepsCnt[creep.room][creep.memory.role];
-            if((creep.room == Game.spawns["Spawn1"].room && builderCnt > 1) || builderCnt > 2){
+            if((creep.room == Game.spawns["Spawn1"].room && builderCnt > 3) || builderCnt > 2){
+                roomNeedingEnergyCreepsCnt[creep.room][creep.memory.role]--;
                 creep.moveTo(Game.flags["FlagResources"], {visualizePathStyle: {stroke: '#ffaa00'}});
             }else{
                 moveHarvest.run(creep);
