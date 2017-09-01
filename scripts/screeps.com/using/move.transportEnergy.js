@@ -17,8 +17,8 @@ var moveTransportEnergy = {
         
         var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_STORAGE) &&
-                        (structure.energy < structure.energyCapacity);
+                    return structure.my && (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || (structure.structureType == STRUCTURE_STORAGE && !DO_NOT_PUT_ENERGY_IN_STORAGE) || structure.structureType == STRUCTURE_CONTAINER) &&
+                        (structure.energy < structure.energyCapacity || (structure.storeCapacity && _.sum(structure.store) < structure.storeCapacity) );
                 }
         });
         if(targets.length > 0) {
@@ -30,6 +30,18 @@ var moveTransportEnergy = {
             }
         }else{
             creep.moveTo(Game.spawns["Spawn1"], {visualizePathStyle: {stroke: '#ffffff'}});
+            
+            
+            // var targets = creep.room.find(FIND_CREEPS, {
+            //     filter: (creep) => {
+            //         return creep.my && (creep.carry.energy < creep.carryCapacity);
+            //     }
+            // });
+            // var mini = methods.closest(creep,targets);
+            // var res = creep.transfer(targets[mini], RESOURCE_ENERGY)
+            // if(res != OK){
+            //     creep.moveTo(Game.spawns["Spawn1"], {visualizePathStyle: {stroke: '#ffffff'}});
+            // }
         }
     }
 }

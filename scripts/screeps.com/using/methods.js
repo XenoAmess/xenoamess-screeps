@@ -22,6 +22,9 @@ var methods = {
             }
         }
         return mini;
+    },
+    random : function(targets){
+        return ti = Math.floor(Math.random() * targets.length);
     }
 }
 module.exports = methods;

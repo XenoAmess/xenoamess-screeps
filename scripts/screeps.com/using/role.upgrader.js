@@ -8,17 +8,8 @@ var roleUpgrader = {
             creep.moveTo(Game.spawns["Spawn1"]);
             return;
         }
-        if(creep.room.controller.owner != undefined && !creep.room.controller.my){
+        if(!creep.room.controller.my){
             creep.moveTo(Game.spawns["Spawn1"]);
-            return;
-        }
-        
-        
-        
-        if(cnt["harvester"] < MIN_HARVESTER){
-            creep.memory = {};
-            creep.memory.role = "harvester";
-            cnt["harvester"]++;
             return;
         }
         

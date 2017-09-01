@@ -8,7 +8,7 @@ var moveRepairAndBuild = {
         //console.log(nowTarget);
         
         if(creep.memory.lastRepairTarget && nowTarget){
-            if(nowTarget.room == creep.room && nowTarget.hits < nowTarget.hitsMax && (!(nowTarget.structureType == STRUCTURE_RAMPART && nowTarget.hits >= RAMPART_HP))){
+            if(nowTarget.room == creep.room && nowTarget.hits < nowTarget.hitsMax && (!(nowTarget.structureType == STRUCTURE_RAMPART && nowTarget.hits >= RAMPART_HP)) && (!(nowTarget.structureType == STRUCTURE_WALL && nowTarget.hits >= WALL_HP))){
                 creep.moveTo(nowTarget, {visualizePathStyle: {stroke: '#ffffff'}});
                 creep.repair(nowTarget);
                 return;

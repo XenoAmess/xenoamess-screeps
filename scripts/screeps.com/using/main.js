@@ -30,7 +30,7 @@ roomNeedingHealCreeps = [];
 roomNeedingChargeTowers = [];
 roomNeedingRepairStructures = [];
 roomNeedingBuildConstructionSite = [];
-
+roomNeedingHarvestResources = [];
 
 
 enemiesInMyBase = new Array();
@@ -40,9 +40,16 @@ ENEMY_IN_MY_BASE = 0
 TOWER_NEED_CHARGE_NUM = 0.8;
 STRUCTURE_NEED_REPAIR_NUM = 0.8;
 
-RAMPART_HP = 1000;
-MEMORY_CLEAR_TIME = 100;
 
+RAMPART_HP = 5000;
+
+WALL_HP = 50000;
+
+MEMORY_CLEAR_TIME = 300;
+
+DO_NOT_PUT_ENERGY_IN_STORAGE = 0;
+
+resourcesHarvestingCreeps = [];
 
 defendBase = function(){
     if(!Memory.structures){
@@ -56,7 +63,7 @@ defendBase = function(){
                 }
             })
         ).length > 0) {
-        Memory.WAR_MODE = 1;
+        //Memory.WAR_MODE = 1;
         ENEMY_IN_MY_BASE = 1;
     }
     if(Game.spawns["Spawn1"].hits < Game.spawns["Spawn1"].hitsMax/2){
@@ -116,7 +123,10 @@ initLists = function(){
     for(var name in Game.rooms){
         targets = Game.rooms[name].find(FIND_STRUCTURES, {
             filter: (object) => {
-                if((object.structureType == STRUCTURE_RAMPART || object.structureType == STRUCTURE_WALL) && object.hits >= RAMPART_HP){
+                if((object.structureType == STRUCTURE_RAMPART || object.structureType == STRUCTURE_CONTAINER) && object.hits >= RAMPART_HP){
+                    return false;
+                }
+                if(object.structureType == STRUCTURE_WALL && object.hits >= WALL_HP){
                     return false;
                 }
                 if(object.hits < object.hitsMax * STRUCTURE_NEED_REPAIR_NUM){
@@ -140,10 +150,20 @@ initLists = function(){
         }
         roomNeedingBuildConstructionSite[Game.constructionSites[name].room].push(Game.constructionSites[name]);
     }
+    
+    
+    roomNeedingHarvestResources = [];
+    for(var name in Game.rooms){
+        roomNeedingHarvestResources[Game.rooms[name]] = Game.rooms[name].find(FIND_SOURCES, {
+            filter: (object) => {
+                return (object.energy > 0);
+            }
+        });
+    }
 };
 
 buildCreeps = function(){
-        for(var name in Memory.creeps) {
+    for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
             // console.log('Clearing non-existing creep memory:', name);
@@ -164,21 +184,27 @@ buildCreeps = function(){
     }
     console.log(new Date());
     
+    DO_NOT_PUT_ENERGY_IN_STORAGE = 0;
+    
     if(cnt["harvester"] < MIN_HARVESTER){
         Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 'harvester' + parseInt(Math.random() * 8999 + 1000), {role: 'harvester'});
     }else{
-        if(Memory.WAR_MODE && cnt["healer"] < cnt["fighter"]/3-1){
+        if(cnt["reserver"] < 1){
+            DO_NOT_PUT_ENERGY_IN_STORAGE = 1;
+            //Game.spawns['Spawn1'].createCreep([CLAIM,CLAIM,MOVE,MOVE], 'reserver' + parseInt(Math.random() * 8999 + 1000), {role: 'reserver'});
+            Game.spawns['Spawn1'].createCreep([MOVE,CLAIM,CLAIM], 'reserver' + parseInt(Math.random() * 8999 + 1000), {role: 'reserver'});
+        }else if(Memory.WAR_MODE && cnt["healer"] < cnt["fighter"]/3-1){
             Game.spawns['Spawn1'].createCreep([TOUGH,TOUGH,TOUGH,MOVE,MOVE,MOVE,MOVE,HEAL,HEAL], 'healer' + parseInt(Math.random() * 8999 + 1000), {role: 'healer'});
         } else 
         if(Memory.WAR_MODE && cnt["fighter"] < cnt["harvester"]){
             Game.spawns['Spawn1'].createCreep([TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,MOVE,ATTACK,MOVE,ATTACK,MOVE,ATTACK,ATTACK,MOVE,MOVE], 'fighter' + parseInt(Math.random() * 8999 + 1000), {role: 'fighter'});
             //Game.spawns['Spawn1'].createCreep([ATTACK,ATTACK,ATTACK,MOVE], 'fighter' + parseInt(Math.random() * 899 + 100), {role: 'fighter'});
-        } else if(cnt["builder"] < 5 && cnt["builder"] < cnt["harvester"]/2 + 2){
-            Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 'builder' + parseInt(Math.random() * 8999 + 1000), {role: 'builder'});
-            //Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,MOVE], 'builder' + parseInt(Math.random() * 899 + 100), {role: 'builder'});
-        } else if(cnt["upgrader"] < 10 && cnt["upgrader"] < cnt["harvester"]){
+        } else if(cnt["upgrader"] < 10 && cnt["upgrader"] < cnt["harvester"] && cnt["builder"] >= 3){
             Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE],'upgrader' + parseInt(Math.random() * 8999 + 1000), {role: 'upgrader'});
             //Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,MOVE],'upgrader' + parseInt(Math.random() * 899 + 100), {role: 'upgrader'});
+        }  else if(cnt["builder"] < 5 && (cnt["builder"] < cnt["harvester"])/2 + 1 && cnt["builder"] < cnt["harvester"]){
+            Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 'builder' + parseInt(Math.random() * 8999 + 1000), {role: 'builder'});
+            //Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,MOVE], 'builder' + parseInt(Math.random() * 899 + 100), {role: 'builder'});
         } else{
             Game.spawns['Spawn1'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], 'harvester' + parseInt(Math.random() * 8999 + 1000), {role: 'harvester'});
             //Game.spawns['Spawn1'].createCreep([WORK,WORK,CARRY,MOVE], 'harvester' + parseInt(Math.random() * 899 + 100), {role: 'harvester'});
@@ -235,8 +261,37 @@ module.exports.loop = function () {
         Memory.CLEAR_TIME = 0;
     }
     Memory.CLEAR_TIME++;
+    console.log("Memory.CLEAR_TIME : " + Memory.CLEAR_TIME);
     defendBase()
     initLists();
     buildCreeps();
     runCreeps();
+    // for(var name in Game.rooms){
+    //     var targets = Game.rooms[name].find(FIND_SOURCES , {
+    //         filter: (object) => {
+    //             return (object.energy > 0);
+    //         }
+    //     });
+    //     if(targets.length <= 1)continue;
+    //     var maxi;
+    //     var maxa = -1;
+    //     var mini;
+    //     var mina = 1<<30;
+    //     for(var name in targets){
+    //         if(!resourcesHarvestingCreeps[targets[name].id]){
+    //           resourcesHarvestingCreeps[targets[name].id]=0;
+    //         }
+    //         if(resourcesHarvestingCreeps[targets[name].id] < mina){
+    //             mina = resourcesHarvestingCreeps[targets[name].id];
+    //             mini = targets[name].id;
+    //         }
+    //         if(resourcesHarvestingCreeps[targets[name].id] > maxa){
+    //             maxa = resourcesHarvestingCreeps[targets[name].id];
+    //             maxi = targets[name].id;
+    //         }
+    //     }
+    //     if(maxa - mina >= 2){
+               
+    //     }
+    // }
 }

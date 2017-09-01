@@ -14,6 +14,7 @@ var roleReserver = {
         
         if(creep.room == Game.flags["FlagReserve"].room && !creep.room.controller.my){
             creep.reserveController(creep.room.controller);
+            creep.signController(creep.room.controller , "Sorry But I need this room.Don't take it please.Or you are my enemy.");
             creep.moveTo(creep.room.controller);
         }else{
             creep.moveTo(Game.flags["FlagReserve"],{visualizePathStyle: {stroke: '#ffffff'}});

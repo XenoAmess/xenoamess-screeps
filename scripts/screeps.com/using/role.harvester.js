@@ -30,7 +30,7 @@ var roleHarvester = {
             moveTransportEnergy.run(creep);
         } else {
             var harvesterCnt = roomNeedingEnergyCreepsCnt[creep.room][creep.memory.role];
-            if((creep.room == Game.spawns["Spawn1"].room && harvesterCnt > 3)  || harvesterCnt > 3){
+            if((creep.room == Game.spawns["Spawn1"].room && harvesterCnt > 2)  || harvesterCnt > 3){
                 roomNeedingEnergyCreepsCnt[creep.room][creep.memory.role]--;
                 creep.moveTo(Game.flags["FlagResources"], {visualizePathStyle: {stroke: '#ffaa00'}});
             }else{

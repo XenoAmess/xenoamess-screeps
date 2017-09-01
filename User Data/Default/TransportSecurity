@@ -1,11 +1,11 @@
 {
    "fJjUrPqhktMfiTHJX3Q0pJi/P12Q72DBgzzJqjlNC4o=": {
       "dynamic_spki_hashes_expiry": 0.0,
-      "expiry": 1515049405.298999,
+      "expiry": 1515180984.065878,
       "mode": "force-https",
       "pkp_include_subdomains": false,
       "pkp_observed": 0.0,
       "sts_include_subdomains": true,
-      "sts_observed": 1504163005.299002
+      "sts_observed": 1504294584.06588
    }
 }
